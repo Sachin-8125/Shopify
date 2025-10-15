@@ -2,13 +2,21 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { PrismaClient } = require('@prisma/client');
 
-const app = express();
-const prisma = new PrismaClient();
+let PrismaClient;
+let prisma = null;
+let prismaAvailable = false;
+try {
+  PrismaClient = require('@prisma/client').PrismaClient;
+  prisma = new PrismaClient();
+  prismaAvailable = true;
+} catch (err) {
+  console.warn('Prisma client not available, running in mock mode. Reason:', err?.message || err);
+}
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+const app = express();
 app.use(cors({ origin: process.env.CORS_ORIGIN }));
 app.use(express.json());
 
@@ -20,6 +28,9 @@ app.get('/api/health', (req, res) => {
 // Get all products
 app.get('/api/products', async (req, res) => {
   try {
+    if (!prismaAvailable) {
+      return res.json([]);
+    }
     const products = await prisma.product.findMany({
       include: {
         images: { orderBy: { order: 'asc' } },
@@ -38,6 +49,34 @@ app.get('/api/products', async (req, res) => {
 app.get('/api/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    if (!prismaAvailable) {
+      // serve mock immediately when Prisma isn't available
+      const mockProduct = {
+        id: parseInt(id),
+        name: 'Premium Cotton T-Shirt',
+        price: 49.99,
+        badge: 'Popular',
+        description: 'Mock description while DB initializes.',
+        productInfo: 'Mock product info.',
+        shippingDetails: 'Mock shipping details.',
+        images: [
+          { id: 1, productId: parseInt(id), imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&h=800&fit=crop', alt: 'Front view', order: 0 },
+          { id: 2, productId: parseInt(id), imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=800&fit=crop', alt: 'Back view', order: 1 },
+        ],
+        colors: [
+          { id: 1, productId: parseInt(id), name: 'White', hexCode: '#FFFFFF', order: 0 },
+          { id: 2, productId: parseInt(id), name: 'Black', hexCode: '#000000', order: 1 },
+        ],
+        sizes: [
+          { id: 1, productId: parseInt(id), size: 'S', order: 0 },
+          { id: 2, productId: parseInt(id), size: 'M', order: 1 },
+        ],
+        bundles: [],
+        pairsWith: [],
+        relatedProducts: [],
+      };
+      return res.json(mockProduct);
+    }
     const product = await prisma.product.findUnique({
       where: { id: parseInt(id) },
       include: {

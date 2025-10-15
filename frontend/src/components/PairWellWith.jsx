@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useCart } from '../context/CartContext';
 
 const PairWellWith = () => {
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const { addItem } = useCart();
 
   const pairingProducts = [
     {
@@ -53,11 +55,21 @@ const PairWellWith = () => {
 
   const checkScroll = () => {
     if (scrollRef.current) {
-      setCanScrollLeft(scrollRef.current.scrollLeft > 0);
-      setCanScrollRight(
-        scrollRef.current.scrollLeft < scrollRef.current.scrollWidth - scrollRef.current.clientWidth - 10
-      );
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      // Allow a tiny epsilon to account for fractional pixels during smooth scroll
+      const maxScrollLeft = Math.max(0, scrollWidth - clientWidth);
+      setCanScrollRight(Math.ceil(scrollLeft) < Math.ceil(maxScrollLeft));
     }
+  };
+
+  const handleAddToCart = (product) => {
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+    });
   };
 
   useEffect(() => {
@@ -75,6 +87,7 @@ const PairWellWith = () => {
           <button
             onClick={() => scroll('left')}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-200 p-2 rounded-full hover:bg-gray-50 shadow-md transition-all"
+            aria-label="Scroll left"
           >
             ‹
           </button>
@@ -94,6 +107,12 @@ const PairWellWith = () => {
                 <img
                   src={product.image}
                   alt={product.name}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = 'https://via.placeholder.com/300x300?text=Image+Unavailable';
+                  }}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
@@ -103,7 +122,10 @@ const PairWellWith = () => {
                 <p className="text-lg font-bold text-gray-900 mb-4">
                   ${product.price.toFixed(2)}
                 </p>
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all active:scale-95">
+                <button
+                  onClick={() => handleAddToCart(product)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all active:scale-95"
+                >
                   Add to Cart
                 </button>
               </div>
@@ -115,6 +137,7 @@ const PairWellWith = () => {
           <button
             onClick={() => scroll('right')}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-200 p-2 rounded-full hover:bg-gray-50 shadow-md transition-all"
+            aria-label="Scroll right"
           >
             ›
           </button>

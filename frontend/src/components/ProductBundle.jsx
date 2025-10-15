@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useCart } from '../context/CartContext';
 
 const ProductBundle = ({ mainProductPrice = 0 }) => {
   const [isBundleSelected, setIsBundleSelected] = useState(true);
+  const { addItem } = useCart();
 
   const bundleItems = [
     {
@@ -86,10 +88,12 @@ const ProductBundle = ({ mainProductPrice = 0 }) => {
 
       <div className="space-y-3">
         <button
-          onClick={() => setIsBundleSelected(!isBundleSelected)}
+          onClick={() => {
+            bundleItems.forEach((item) => addItem({ productId: item.id, name: item.name, price: item.price, quantity: 1 }));
+          }}
           className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all active:scale-95"
         >
-          {isBundleSelected ? '✓ Add Bundle to Cart' : 'Add Bundle to Cart'}
+          Add Bundle to Cart
         </button>
         <button className="w-full border-2 border-gray-300 text-gray-900 font-semibold py-3 px-6 rounded-lg hover:bg-gray-50 transition-all">
           or Buy Separately

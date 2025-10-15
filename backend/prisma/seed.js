@@ -1,10 +1,9 @@
-// backend/prisma/seed.ts
-import { PrismaClient } from '@prisma/client';
+// backend/prisma/seed.js (CommonJS)
+const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Clear existing data
   await prisma.productImage.deleteMany();
   await prisma.color.deleteMany();
   await prisma.size.deleteMany();
@@ -13,7 +12,6 @@ async function main() {
   await prisma.relatedProduct.deleteMany();
   await prisma.product.deleteMany();
 
-  // Create main product
   const mainProduct = await prisma.product.create({
     data: {
       name: 'Premium Cotton T-Shirt',
@@ -43,7 +41,6 @@ All orders are carefully packaged and tracked. We ship to over 180 countries wor
     },
   });
 
-  // Add product images
   const images = await Promise.all([
     prisma.productImage.create({
       data: {
@@ -87,7 +84,6 @@ All orders are carefully packaged and tracked. We ship to over 180 countries wor
     }),
   ]);
 
-  // Add colors
   const colors = await Promise.all([
     prisma.color.create({
       data: {
@@ -131,7 +127,6 @@ All orders are carefully packaged and tracked. We ship to over 180 countries wor
     }),
   ]);
 
-  // Add sizes
   const sizes = await Promise.all([
     prisma.size.create({
       data: {

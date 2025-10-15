@@ -1,4 +1,3 @@
-// frontend/src/components/ImageGallery.jsx
 import React, { useState, useRef } from 'react';
 
 const ImageGallery = ({ images }) => {

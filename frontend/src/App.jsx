@@ -1,26 +1,29 @@
-import React, { useState, useEffect } from 'react'
-import ProductPage from './pages/ProductPage'
+// frontend/src/App.jsx
+import React, { useEffect, useState } from 'react';
+import ProductPage from './pages/ProductPage';
+import { CartProvider } from './context/CartContext';
 
 function App() {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // check if backend is running
-    const checkBackend = async() => {
-        try {
-            const response = await fetch('http://localhost:5000/api/health');
-            if(!response.ok) throw new Error('Backend not available');
-            setLoading(false);
-        } catch (error) {
-            setError('Backend server is not running. Please start the backend.');
-            setLoading(false);
-        }
+    // Check if backend is running
+    const checkBackend = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/health');
+        if (!response.ok) throw new Error('Backend not available');
+        setLoading(false);
+      } catch (err) {
+        setError('Backend server is not running. Please start the backend.');
+        setLoading(false);
+      }
     };
-    checkBackend();
-  },[]);
 
-  if(loading){
+    checkBackend();
+  }, []);
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
@@ -48,8 +51,11 @@ function App() {
     );
   }
 
-  return <ProductPage />;
-
+  return (
+    <CartProvider>
+      <ProductPage />
+    </CartProvider>
+  );
 }
 
-export default App
+export default App;

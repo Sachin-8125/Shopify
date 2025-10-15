@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useCart } from '../context/CartContext';
 
 const RelatedProducts = () => {
   const [hoveredProduct, setHoveredProduct] = useState(null);
+  const { addItem } = useCart();
 
   const relatedProducts = [
     {
@@ -95,7 +97,10 @@ const RelatedProducts = () => {
                 <span className="text-xs text-gray-600 ml-1">(42)</span>
               </div>
 
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all active:scale-95">
+              <button
+                onClick={() => addItem({ productId: product.id, name: product.name, price: product.price, quantity: 1 })}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all active:scale-95"
+              >
                 Add to Cart
               </button>
             </div>
