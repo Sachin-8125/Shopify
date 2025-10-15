@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ProductBundle = ({ mainProductPrice }) => {
+const ProductBundle = ({ mainProductPrice = 0 }) => {
   const [isBundleSelected, setIsBundleSelected] = useState(true);
 
   const bundleItems = [
